@@ -19,11 +19,18 @@ function getAbsentMessage(commitSha: string) {
   return `###  💥  No Changeset
 Latest commit: ${commitSha}
 
-Merging this PR will not cause any packages to be released. If these changes should not cause updates to packages in this repo, this is fine 🙂
+Merging this PR will not include it in the release notes of the next release. If this is a customer facing change, **please create a changeset for this PR.**
 
-**If these changes should be published to npm, you need to add a changeset.**
+To add a changeset, follow these simple steps:
 
-[Click here to learn what changesets are, and how to add one](https://github.com/Noviny/changesets/blob/master/docs/adding-a-changeset.md).
+\`\`\`
+npm run changeset // select "patch" for bugfixes, "minor" for features, and "major" for big overhauls/highlighted features.
+\`\`\`
+
+After the changeset file was generated in the \`.changeset\` directory, open it in your editor and add any further changes you need. **Be as descriptive as possible.**
+Then, simply commit and push the created changeset.
+
+[Click here to learn what changesets are](https://github.com/Noviny/changesets/blob/master/docs/adding-a-changeset.md).
 
 [Click here if you're a maintainer who wants to add a changeset to this PR](${addChangesetUrl})
 ${changesetActionSignature}`;
@@ -32,7 +39,7 @@ function getApproveMessage(commitSha: string) {
   return `###  🦋  Changeset is good to go
 Latest commit: ${commitSha}
 
-**We got this.**
+**Thank you for adding a changeset.** This will help ensure our releases are predictable and of high quality.
 
 Not sure what this means? [Click here to learn what changesets are](https://github.com/Noviny/changesets/blob/master/docs/adding-a-changeset.md).
 ${changesetActionSignature}`;
