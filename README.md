@@ -1,10 +1,6 @@
-# Please use https://github.com/apps/changeset-bot instead of this because this doesn't work on forked PRs 
-
----
-
 # Changesets Check Action
 
-This action for [Changesets](https://github.com/atlassian/changesets) comments on PRs with whether a PR has a changeset or not and links to documentation explaining to contributors how to create a changeset.
+This action for Changesets comments on PRs with whether a PR has a changeset or not and links to documentation explaining to contributors how to create a changeset.
 
 ## Usage
 
@@ -22,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: Comment on PR
-        uses: changesets/check-action@master
+        uses: Class-Foundations/changesets-check-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
