@@ -23,7 +23,7 @@ Merging this PR will not include it in the release notes of the next release. If
 To add a changeset, follow these simple steps:
 
 \`\`\`
-class-ui-changeset // select "patch" for bugfixes, "minor" for features, and "major" for big overhauls/highlighted features.
+npm exec class-ui-changeset // select "patch" for bugfixes, "minor" for features, and "major" for big overhauls/highlighted features.
 \`\`\`
 
 After the changeset file was generated in the \`.changeset\` directory, open it in your editor and add any further changes you need. **Be as descriptive as possible.**
