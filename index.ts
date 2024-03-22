@@ -13,8 +13,9 @@ let addChangesetUrl = `${github.context.payload.pull_request!.head.repo.html_url
     capitalize: false,
 })}.md`;
 
-function getAbsentMessage(commitSha: string) {
-    return `###  💥  No Changeset
+const getAbsentMessage = (commitSha: string) => {
+    return `\
+###  💥  No Changeset
 Latest commit: ${commitSha}
 
 Merging this PR will not include it in the release notes of the next release. If this is a customer facing change, **please create a changeset for this PR.**
@@ -22,7 +23,7 @@ Merging this PR will not include it in the release notes of the next release. If
 To add a changeset, follow these simple steps:
 
 \`\`\`
-npm run changeset // select "patch" for bugfixes, "minor" for features, and "major" for big overhauls/highlighted features.
+class-ui-changeset // select "patch" for bugfixes, "minor" for features, and "major" for big overhauls/highlighted features.
 \`\`\`
 
 After the changeset file was generated in the \`.changeset\` directory, open it in your editor and add any further changes you need. **Be as descriptive as possible.**
@@ -30,11 +31,15 @@ Then, simply commit and push the created changeset.
 
 [Click here to learn what changesets are](https://github.com/Noviny/changesets/blob/master/docs/adding-a-changeset.md).
 
+More info about class-ui-changeset [here](https://classedu.github.io/class-ui/docs/release-tools/class-ui-changeset).
+
 [Click here if you're a maintainer who wants to add a changeset to this PR](${addChangesetUrl})
 ${changesetActionSignature}`;
-}
+};
+
 function getApproveMessage(commitSha: string) {
-    return `###  🦋  Changeset is good to go
+    return `\
+###  🦋  Changeset is good to go
 Latest commit: ${commitSha}
 
 **Thank you for adding a changeset.** This will help ensure our releases are predictable and of high quality.
