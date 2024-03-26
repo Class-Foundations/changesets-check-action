@@ -62,9 +62,7 @@ const getCommentId = async (octokit: Octokit, params: IssuesListCommentsParams):
 const getHasChangeset = async (octokit: Octokit, params: PullsListFilesParams): Promise<boolean> => {
     const files = await octokit.rest.pulls.listFiles(params);
 
-    return files.data.some((file) => {
-        return file.filename.startsWith('.changeset') && file.status === 'added';
-    });
+    return files.data.some((file) => file.filename.startsWith('.changeset') && file.status === 'added');
 };
 
 (async () => {
