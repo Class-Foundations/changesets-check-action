@@ -1,8 +1,13 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { IssuesListCommentsParams, PullsListFilesParams } from '@octokit/rest';
-// @ts-ignore
+
 import humanId from 'human-id';
+
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
+
+type IssuesListCommentsParams = RestEndpointMethodTypes['issues']['listComments']['parameters'];
+type PullsListFilesParams = RestEndpointMethodTypes['pulls']['listFiles']['parameters'];
+type Octokit = ReturnType<typeof github.getOctokit>;
 
 const changesetActionSignature = `<!-- changeset-check-action-signature -->`;
 
@@ -37,7 +42,7 @@ More info about class-ui-changeset [here](https://classedu.github.io/class-ui/do
 ${changesetActionSignature}`;
 };
 
-function getApproveMessage(commitSha: string) {
+const getApproveMessage = (commitSha: string) => {
     return `\
 ###  🦋  Changeset is good to go
 Latest commit: ${commitSha}
@@ -46,33 +51,33 @@ Latest commit: ${commitSha}
 
 Not sure what this means? [Click here to learn what changesets are](https://github.com/Noviny/changesets/blob/master/docs/adding-a-changeset.md).
 ${changesetActionSignature}`;
-}
+};
 
-const getCommentId = (octokit: github.GitHub, params: IssuesListCommentsParams) =>
-    octokit.issues.listComments(params).then((comments) => {
-        const changesetBotComment = comments.data.find((comment) => comment.body.includes(changesetActionSignature));
-        return changesetBotComment ? changesetBotComment.id : null;
-    });
+const getCommentId = async (octokit: Octokit, params: IssuesListCommentsParams): Promise<number | null> => {
+    const comments = await octokit.rest.issues.listComments(params);
 
-const getHasChangeset = (octokit: github.GitHub, params: PullsListFilesParams) =>
-    octokit.pulls.listFiles(params).then((files) => {
-        const changesetFiles = files.data.filter(
-            (file) => file.filename.startsWith('.changeset') && file.status === 'added'
-        );
-        return changesetFiles.length > 0;
+    return comments.data.find((comment) => comment.body?.includes(changesetActionSignature))?.id || null;
+};
+
+const getHasChangeset = async (octokit: Octokit, params: PullsListFilesParams): Promise<boolean> => {
+    const files = await octokit.rest.pulls.listFiles(params);
+
+    return files.data.some((file) => {
+        return file.filename.startsWith('.changeset') && file.status === 'added';
     });
+};
 
 (async () => {
-    let githubToken = process.env.GITHUB_TOKEN;
-
+    const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {
         core.setFailed('Please add the GITHUB_TOKEN to the changesets action');
         return;
     }
-    let repo = `${github.context.repo.owner}/${github.context.repo.repo}`;
 
-    const octokit = new github.GitHub(githubToken);
+    const octokit = github.getOctokit(githubToken);
+
     console.log(JSON.stringify(github.context.payload, null, 2));
+
     const [commentId, hasChangeset] = await Promise.all([
         getCommentId(octokit, {
             issue_number: github.context.payload.pull_request!.number,
@@ -84,16 +89,17 @@ const getHasChangeset = (octokit: github.GitHub, params: PullsListFilesParams) =
         }),
     ]);
 
-    let message = hasChangeset ? getApproveMessage(github.context.sha) : getAbsentMessage(github.context.sha);
+    const message = hasChangeset ? getApproveMessage(github.context.sha) : getAbsentMessage(github.context.sha);
 
     if (commentId) {
-        return octokit.issues.updateComment({
+        return octokit.rest.issues.updateComment({
             comment_id: commentId,
             body: message,
             ...github.context.repo,
         });
     }
-    return octokit.issues.createComment({
+
+    return octokit.rest.issues.createComment({
         ...github.context.repo,
         issue_number: github.context.payload.pull_request!.number,
         body: message,
